@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Khadu Visa Concierge</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  /* ============ TOKENS ============ */
+  :root{
+    /* warm editorial base — "sunrise concierge" palette */
+    --paper:#F6F1E8; --paper-alt:#EFE4D0; --surface:#FFFFFF; --surface-warm:#FFFDF8;
+    --ink-900:#201A14; --ink-700:#5C5347; --ink-500:#8B8074;
+    --border:#E6D9C3; --border-strong:#D8C6A6;
+
+    --rust-600:#9C5A35; --rust-700:#7C4527; --rust-100:#F1DDC9;
+    --dusty-500:#4F7389; --dusty-600:#3E5C70;
+    --sand-500:#D59C62;
+
+    /* trust accents — reserved for legal/authority + the single action color */
+    --navy-950:#0A192F; --navy-800:#1E3A8A;
+    --gold-500:#D4AF37; --gold-600:#B8952E; --gold-100:#FBF1D6;
+
+    --shadow-1:0 1px 2px rgba(60,40,20,.07), 0 1px 1px rgba(60,40,20,.05);
+    --shadow-2:0 16px 36px -10px rgba(60,36,14,.20), 0 4px 14px -4px rgba(60,36,14,.10);
+    --shadow-3:0 26px 64px -14px rgba(30,20,10,.30);
+
+    --font-display:'Libre Caslon Text',Georgia,'Times New Roman',serif;
+    --font-body:'Plus Jakarta Sans',ui-sans-serif,system-ui,sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --radius-card:20px; --radius-pill:999px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#171210; --paper-alt:#201914; --surface:#231C16; --surface-warm:#291F17;
+      --ink-900:#F3ECE1; --ink-700:#CBBFAE; --ink-500:#96897A;
+      --border:#3A2E22; --border-strong:#4A3B2C;
+      --rust-600:#CB8355; --rust-700:#E29A6C; --rust-100:#3A2416;
+      --dusty-500:#7FA2B8; --dusty-600:#9BC0D4;
+      --sand-500:#E0AE74;
+      --gold-500:#E4C158; --gold-100:#2A2312;
+      --shadow-1:0 1px 2px rgba(0,0,0,.4);
+      --shadow-2:0 16px 36px -10px rgba(0,0,0,.55);
+      --shadow-3:0 26px 64px -14px rgba(0,0,0,.65);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#171210; --paper-alt:#201914; --surface:#231C16; --surface-warm:#291F17;
+    --ink-900:#F3ECE1; --ink-700:#CBBFAE; --ink-500:#96897A;
+    --border:#3A2E22; --border-strong:#4A3B2C;
+    --rust-600:#CB8355; --rust-700:#E29A6C; --rust-100:#3A2416;
+    --dusty-500:#7FA2B8; --dusty-600:#9BC0D4;
+    --sand-500:#E0AE74;
+    --gold-500:#E4C158; --gold-100:#2A2312;
+    --shadow-1:0 1px 2px rgba(0,0,0,.4);
+    --shadow-2:0 16px 36px -10px rgba(0,0,0,.55);
+    --shadow-3:0 26px 64px -14px rgba(0,0,0,.65);
+    color-scheme: dark;
+  }
+
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important;} }
+  body{
+    margin:0; background:var(--paper); color:var(--ink-700);
+    font-family:var(--font-body); font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%;display:block;}
+  h1,h2,h3,h4{font-family:var(--font-display);color:var(--ink-900);margin:0;text-wrap:balance;font-weight:400;}
+  h2 em, h1 em{font-style:italic;color:var(--rust-600);}
+  p{margin:0;}
+  a{color:inherit;text-decoration:none;}
+  ul{margin:0;padding:0;list-style:none;}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;}
+  .tabnum{font-variant-numeric:tabular-nums;font-family:var(--font-mono);}
+  :focus-visible{outline:3px solid var(--dusty-600);outline-offset:2px;border-radius:4px;}
+  .on-dark :focus-visible{outline-color:var(--gold-500);}
+
+  .wrap{max-width:1180px;margin-inline:auto;padding-inline:24px;}
+  section{padding-block:88px;}
+  @media (max-width:720px){ section{padding-block:56px;} }
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--rust-600);display:inline-flex;align-items:center;gap:8px;}
+  .eyebrow::before{content:"";width:22px;height:1.5px;background:var(--rust-600);display:inline-block;}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:13px 26px;border-radius:var(--radius-pill);font-weight:700;font-size:15px;
+    min-height:44px;cursor:pointer;transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+    white-space:nowrap;font-family:var(--font-body);
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn:active{transform:translateY(0);}
+  .btn-gold{background:var(--gold-500);color:var(--navy-950);box-shadow:0 10px 22px -8px rgba(212,175,55,.6);}
+  .btn-gold:hover{background:var(--gold-600);}
+  .btn-outline{background:transparent;color:var(--ink-900);border:1.5px solid var(--border-strong);}
+  .btn-outline:hover{background:var(--surface);border-color:var(--ink-500);}
+  .btn-navy{background:var(--navy-950);color:#fff;}
+  .btn-navy:hover{background:#14243F;}
+  .btn-orange{background:var(--rust-600);color:#fff;}
+  .btn-orange:hover{background:var(--rust-700);}
+
+  /* ============ HEADER (floating pill) ============ */
+  .header-outer{position:sticky;top:18px;z-index:50;padding-inline:20px;}
+  .header-pill{
+    max-width:1180px;margin-inline:auto;display:flex;align-items:center;justify-content:space-between;gap:20px;
+    background:rgba(255,253,248,.86);backdrop-filter:blur(10px);border:1px solid var(--border);
+    border-radius:var(--radius-pill);padding:9px 10px 9px 20px;box-shadow:var(--shadow-1);transition:box-shadow .2s ease;
+  }
+  .header-pill.scrolled{box-shadow:var(--shadow-2);}
+  .brand{display:flex;align-items:center;gap:10px;color:var(--ink-900);}
+  .brand-mark{width:34px;height:34px;flex:none;}
+  .brand-text{font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:.01em;line-height:1;}
+  .brand-text small{display:block;font-family:var(--font-mono);font-weight:500;font-size:9.5px;letter-spacing:.1em;color:var(--rust-600);margin-top:4px;text-transform:uppercase;}
+  nav.primary-nav{display:flex;gap:24px;}
+  nav.primary-nav a{color:var(--ink-700);font-size:14px;font-weight:600;padding:6px 2px;border-bottom:2px solid transparent;transition:color .15s, border-color .15s;}
+  nav.primary-nav a:hover{color:var(--ink-900);border-color:var(--rust-600);}
+  @media (max-width:980px){ nav.primary-nav{display:none;} }
+  .header-outer .btn{padding:11px 20px;font-size:13.5px;}
+
+  /* ============ HERO ============ */
+  .hero{position:relative;overflow:hidden;padding-block:56px 0;isolation:isolate;}
+  .hero-sky{position:absolute;inset:0;z-index:-2;background:linear-gradient(180deg,var(--paper) 0%,#F3DFC4 42%,#E7B98C 72%,#D98A5C 100%);}
+  :root[data-theme="dark"] .hero-sky, @media (prefers-color-scheme:dark){.hero-sky{}}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center;position:relative;z-index:2;padding-top:36px;}
+  @media (max-width:940px){ .hero-grid{grid-template-columns:1fr;} .hero-visual{order:-1;max-width:340px;margin-inline:auto;} }
+  .hero .eyebrow{margin-bottom:18px;}
+  .hero h1{font-size:clamp(32px,4.4vw,52px);font-weight:400;line-height:1.12;max-inline-size:15ch;}
+  .hero-sub{margin-top:20px;font-size:17px;color:var(--ink-700);max-inline-size:44ch;line-height:1.65;}
+  .hero-ctas{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px;}
+
+  .hero-widget{margin-top:36px;background:var(--surface-warm);border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:var(--shadow-1);}
+  .hero-widget-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-500);margin-bottom:12px;}
+  .widget-row{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;}
+  @media (max-width:640px){ .widget-row{grid-template-columns:1fr;} }
+  .widget-select{position:relative;}
+  .widget-select select{
+    appearance:none;width:100%;background:var(--surface);color:var(--ink-900);border:1px solid var(--border-strong);
+    border-radius:12px;padding:13px 38px 13px 14px;font-size:14.5px;font-weight:600;font-family:inherit;min-height:44px;
+  }
+  .widget-select::after{content:"";position:absolute;right:14px;top:50%;width:9px;height:9px;border:2px solid var(--rust-600);border-top:0;border-left:0;transform:translateY(-70%) rotate(45deg);pointer-events:none;}
+  .hero-widget-result{margin-top:14px;font-size:14px;color:var(--rust-700);min-height:20px;font-weight:600;}
+
+  .hero-visual{position:relative;}
+  .skyline-card{position:relative;border-radius:22px;overflow:hidden;box-shadow:var(--shadow-3);border:1px solid rgba(0,0,0,.06);aspect-ratio:4/5;
+    background:linear-gradient(180deg,#FBEFDB 0%,#F3D2A0 45%,#E29A64 75%,#C9713F 100%);}
+  .skyline-sun{position:absolute;left:50%;top:34%;width:120px;height:120px;border-radius:50%;transform:translate(-50%,-50%);
+    background:radial-gradient(circle at 40% 35%, #FFE9B8, var(--gold-500) 60%, var(--rust-600) 100%);opacity:.92;}
+  .skyline-svg{position:absolute;bottom:0;left:0;right:0;width:100%;}
+  .skyline-caption{position:absolute;top:18px;left:18px;right:18px;text-align:center;font-family:var(--font-mono);color:#5C3A22;letter-spacing:.16em;font-size:10.5px;font-weight:600;text-transform:uppercase;}
+  .fan-cards{position:absolute;left:0;right:0;bottom:-30px;display:flex;justify-content:center;gap:10px;z-index:3;}
+  .fan-card{width:64px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px 6px;text-align:center;box-shadow:var(--shadow-2);font-size:10px;font-weight:700;color:var(--ink-900);}
+  .fan-card:nth-child(1){transform:rotate(-9deg) translateY(6px);}
+  .fan-card:nth-child(2){transform:rotate(-3deg);}
+  .fan-card:nth-child(3){transform:rotate(4deg);}
+  .fan-card:nth-child(4){transform:rotate(10deg) translateY(8deg);}
+  .fan-card .flag{font-size:18px;line-height:1;margin-bottom:4px;}
+  .fan-card .ok{color:var(--rust-600);font-family:var(--font-mono);font-size:8.5px;letter-spacing:.04em;display:block;margin-top:2px;}
+
+  /* ============ STATS ============ */
+  .stats-wrap{margin-top:70px;}
+  .stats-card{background:var(--surface);border-radius:var(--radius-card);box-shadow:var(--shadow-2);border:1px solid var(--border);padding:34px 28px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  @media (max-width:720px){ .stats-card{grid-template-columns:1fr;text-align:center;padding:26px 20px;} }
+  .stat{text-align:center;}
+  .stat b{display:block;font-family:var(--font-mono);font-size:clamp(26px,3.2vw,36px);font-weight:600;color:var(--rust-600);}
+  .stat span{font-size:13px;color:var(--ink-500);font-weight:600;margin-top:4px;display:block;}
+  .stats-card > div + div{border-left:1px solid var(--border);}
+  @media (max-width:720px){ .stats-card > div + div{border-left:0;border-top:1px solid var(--border);padding-top:20px;} }
+
+  /* ============ SECTION HEADS ============ */
+  .section-head{max-width:620px;margin-bottom:44px;}
+  .section-head h2{font-size:clamp(26px,3vw,36px);margin-top:12px;font-weight:400;}
+  .section-head p{margin-top:14px;color:var(--ink-500);font-size:15.5px;}
+
+  /* ============ SCROLLER (shared: proof + testimonials) ============ */
+  .scroller-shell{position:relative;}
+  .scroller{display:flex;gap:18px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x proximity;margin-inline:-24px;padding-inline:24px;scrollbar-width:none;}
+  .scroller::-webkit-scrollbar{display:none;}
+  .scroller-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;}
+  .scroller-dots{display:flex;gap:7px;}
+  .s-dot{width:8px;height:8px;border-radius:50%;background:var(--border-strong);}
+  .s-dot[aria-current="true"]{background:var(--rust-600);width:22px;border-radius:5px;}
+  .scroller-arrows{display:flex;gap:8px;}
+  .s-arrow{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-1);}
+  .s-arrow svg{width:16px;height:16px;color:var(--ink-700);}
+  .s-arrow:hover{border-color:var(--rust-600);}
+
+  /* ============ PROOF GALLERY ============ */
+  .proof-card{flex:0 0 230px;scroll-snap-align:start;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;position:relative;}
+  .proof-card .redact{height:8px;border-radius:4px;background:repeating-linear-gradient(90deg,var(--border-strong) 0 10px,transparent 10px 14px);margin-bottom:7px;}
+  .proof-card .redact:nth-child(2){width:70%;}
+  .proof-stamp{position:absolute;top:14px;right:14px;width:50px;height:50px;border:2px solid var(--rust-600);border-radius:50%;display:flex;align-items:center;justify-content:center;transform:rotate(10deg);opacity:.9;}
+  .proof-stamp svg{width:20px;height:20px;stroke:var(--rust-600);}
+  .proof-badge{display:inline-block;margin-top:14px;background:var(--rust-100);color:var(--rust-700);font-family:var(--font-mono);font-size:11px;font-weight:600;padding:6px 10px;border-radius:8px;}
+
+  /* ============ SERVICES — asymmetric bento ============ */
+  .services-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:18px;}
+  .services-grid .service-card:nth-child(1){grid-column:span 2;grid-row:span 2;}
+  .services-grid .service-card:nth-child(2){grid-column:span 2;}
+  .services-grid .service-card:nth-child(3){grid-column:span 2;}
+  .services-grid .service-card:nth-child(4){grid-column:span 2;}
+  .services-grid .service-card:nth-child(5){grid-column:span 2;}
+  .services-grid .service-card:nth-child(6){grid-column:span 2;}
+  @media (max-width:900px){ .services-grid{grid-template-columns:repeat(2,1fr);} .services-grid .service-card:nth-child(1){grid-column:span 2;grid-row:span 1;} .services-grid .service-card{grid-column:span 1 !important;} }
+  @media (max-width:560px){ .services-grid{grid-template-columns:1fr;} .services-grid .service-card{grid-column:1 !important;} }
+  .service-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card);padding:26px 24px;
+    transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;display:flex;flex-direction:column;
+  }
+  .service-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-2);border-color:var(--border-strong);}
+  .service-card:nth-child(1){background:linear-gradient(165deg,#FBEFDB, var(--surface) 55%);}
+  .service-icon{width:44px;height:44px;color:var(--dusty-500);margin-bottom:16px;}
+  .service-card:nth-child(1) .service-icon{width:52px;height:52px;color:var(--rust-600);}
+  .service-card h3{font-size:18.5px;font-weight:400;}
+  .service-card:nth-child(1) h3{font-size:23px;}
+  .service-meta{display:flex;gap:18px;margin-top:auto;padding-top:16px;border-top:1px solid var(--border);}
+  .service-meta div b{display:block;font-family:var(--font-mono);color:var(--ink-900);font-size:15px;}
+  .service-meta div span{font-size:11px;color:var(--ink-500);text-transform:uppercase;letter-spacing:.04em;}
+  .service-link{display:inline-flex;align-items:center;gap:5px;margin-top:16px;font-weight:700;font-size:13.5px;color:var(--rust-600);}
+  .service-link svg{width:14px;height:14px;transition:transform .15s;}
+  .service-card:hover .service-link svg{transform:translateX(3px);}
+
+  /* ============ CHECKLIST ============ */
+  .checklist-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card);box-shadow:var(--shadow-1);overflow:hidden;}
+  .tab-bar{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);background:var(--paper-alt);}
+  .tab-btn{flex:none;padding:16px 22px;font-weight:700;font-size:14px;color:var(--ink-500);border-bottom:2.5px solid transparent;white-space:nowrap;min-height:44px;}
+  .tab-btn:hover{color:var(--ink-900);}
+  .tab-btn[aria-selected="true"]{color:var(--rust-600);border-color:var(--rust-600);background:var(--surface);}
+  .tab-panel{padding:30px;display:none;}
+  .tab-panel.active{display:block;}
+  .checklist-top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px;}
+  .progress-track{width:180px;height:8px;border-radius:6px;background:var(--border);overflow:hidden;}
+  .progress-fill{height:100%;background:var(--gold-500);border-radius:6px;transition:width .3s ease;width:0%;}
+  .progress-label{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--ink-500);white-space:nowrap;}
+  .checklist-groups{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;}
+  @media (max-width:760px){ .checklist-groups{grid-template-columns:1fr;} }
+  .cl-group h4{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--dusty-600);margin-bottom:12px;font-family:var(--font-body);font-weight:700;}
+  .cl-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;cursor:pointer;}
+  .cl-item input{appearance:none;width:19px;height:19px;flex:none;margin-top:1px;border:2px solid var(--border-strong);border-radius:6px;position:relative;cursor:pointer;}
+  .cl-item input:checked{background:var(--gold-500);border-color:var(--gold-500);}
+  .cl-item input:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:9px;border:solid var(--navy-950);border-width:0 2px 2px 0;transform:rotate(45deg);}
+  .cl-item span{font-size:14.5px;color:var(--ink-700);}
+  .cl-item input:checked ~ span{color:var(--ink-500);text-decoration:line-through;text-decoration-color:var(--border-strong);}
+
+  /* ============ PROCESS ============ */
+  .process-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;}
+  @media (max-width:860px){ .process-flow{grid-template-columns:1fr;gap:28px;} }
+  .process-step{position:relative;padding:0 18px;text-align:center;}
+  @media (max-width:860px){ .process-step{text-align:left;padding-left:64px;} }
+  .process-step::before{content:"";position:absolute;top:29px;left:calc(50% + 29px);right:calc(-50% + 29px);height:0;border-top:2px dashed var(--border-strong);z-index:0;}
+  .process-step:last-child::before{display:none;}
+  @media (max-width:860px){
+    .process-step::before{top:0;bottom:0;left:29px;right:auto;width:0;height:auto;border-top:0;border-left:2px dashed var(--border-strong);}
+    .process-step:last-child::before{display:none;}
+  }
+  .process-num{width:58px;height:58px;border-radius:50%;background:var(--navy-950);color:var(--gold-500);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;position:relative;z-index:1;font-family:var(--font-mono);font-weight:600;font-size:19px;box-shadow:var(--shadow-2);}
+  @media (max-width:860px){ .process-num{position:absolute;left:0;top:0;margin:0;} }
+  .process-step h3{font-size:16.5px;margin-top:2px;font-weight:700;font-family:var(--font-body);color:var(--ink-900);}
+  .process-step p{font-size:14px;color:var(--ink-500);margin-top:8px;}
+
+  /* ============ TESTIMONIALS (grid, Bromo-style) ============ */
+  .testi-card{flex:0 0 300px;scroll-snap-align:start;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;box-shadow:var(--shadow-1);}
+  .testi-stars{display:flex;gap:3px;margin-bottom:14px;}
+  .testi-stars svg{width:16px;height:16px;fill:var(--gold-500);}
+  .testi-quote{font-size:15.5px;color:var(--ink-900);line-height:1.6;font-family:var(--font-display);}
+  .testi-person{display:flex;align-items:center;gap:12px;margin-top:20px;padding-top:18px;border-top:1px solid var(--border);}
+  .testi-avatar{width:40px;height:40px;border-radius:50%;background:var(--dusty-500);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--font-mono);font-size:13px;}
+  .testi-name{font-weight:700;color:var(--ink-900);font-size:14px;font-family:var(--font-body);}
+  .testi-role{font-size:12px;color:var(--ink-500);}
+
+  /* ============ FOOTER (trust zone — navy stays) ============ */
+  footer{background:var(--navy-950);color:rgba(255,255,255,.68);padding-block:64px 100px;}
+  .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:40px;}
+  @media (max-width:860px){ .footer-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:520px){ .footer-grid{grid-template-columns:1fr;} }
+  footer h4{color:#fff;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;font-family:var(--font-body);}
+  footer li{margin-bottom:10px;font-size:14px;}
+  footer a:hover{color:var(--gold-500);}
+  .footer-badges{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+  .footer-badge{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:6px 10px;}
+  .footer-badge svg{width:14px;height:14px;color:var(--gold-500);}
+  .footer-bottom{border-top:1px solid rgba(255,255,255,.1);margin-top:48px;padding-top:24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12px;}
+
+  /* ============ STICKY MOBILE CTA ============ */
+  .mobile-cta{position:fixed;bottom:0;left:0;right:0;z-index:60;display:none;background:var(--surface);border-top:1px solid var(--border);box-shadow:0 -8px 24px -8px rgba(60,40,20,.18);padding:10px 12px;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
+  @media (max-width:768px){ .mobile-cta{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:8px;} body{padding-bottom:76px;} }
+  .mobile-cta a, .mobile-cta button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:14px;padding:9px 4px;min-height:52px;font-size:11px;font-weight:700;font-family:var(--font-body);}
+  .mobile-cta svg{width:19px;height:19px;}
+  .mc-call{background:var(--paper-alt);color:var(--dusty-600);border:1px solid var(--border);}
+  .mc-zalo{background:var(--paper-alt);color:var(--dusty-600);border:1px solid var(--border);}
+  .mc-fast{background:var(--rust-600);color:#fff;}
+
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+</style>
+</head>
+<body>
+
+<div class="header-outer">
+  <div class="header-pill" id="siteHeader">
+    <a href="#top" class="brand" aria-label="Khadu Visa Concierge — trang chủ">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <circle cx="20" cy="20" r="18.5" stroke="#9C5A35" stroke-width="1.4"/>
+        <path d="M11 24 Q20 8 29 24" stroke="#9C5A35" stroke-width="1.6" fill="none"/>
+        <circle cx="20" cy="20" r="3" fill="#D4AF37"/>
+      </svg>
+      <span class="brand-text">KHADU<small>Visa &amp; Legal Concierge</small></span>
+    </a>
+    <nav class="primary-nav" aria-label="Điều hướng chính">
+      <a href="#dich-vu">Dịch vụ</a>
+      <a href="#ho-so">Hồ sơ cần chuẩn bị</a>
+      <a href="#quy-trinh">Quy trình</a>
+      <a href="#danh-gia">Đánh giá</a>
+      <a href="#lien-he">Liên hệ</a>
+    </nav>
+    <a href="#hero-widget" class="btn btn-gold">Đánh Giá Miễn Phí</a>
+  </div>
+</div>
+
+<main id="top">
+  <!-- ============ HERO ============ -->
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero-sky" aria-hidden="true"></div>
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Tư vấn &amp; xử lý hồ sơ visa cao cấp</span>
+        <h1 id="hero-heading">Tỷ lệ đậu visa <em>98,5%</em> — kể cả hồ sơ khó &amp; khẩn</h1>
+        <p class="hero-sub">Đội ngũ Khadu trực tiếp rà soát, xây dựng lộ trình chứng minh tài chính – công việc – ràng buộc Việt Nam theo từng loại visa, không dùng mẫu hồ sơ dựng sẵn.</p>
+        <div class="hero-ctas">
+          <a href="#hero-widget" class="btn btn-gold">Nhận lộ trình miễn phí</a>
+          <a href="#dich-vu" class="btn btn-outline">Xem 6 thị trường visa</a>
+        </div>
+
+        <div class="hero-widget" id="hero-widget">
+          <div class="hero-widget-label">Nhận lộ trình &amp; báo giá trong 60 giây</div>
+          <div class="widget-row">
+            <label class="widget-select">
+              <span class="visually-hidden">Chọn nước đến</span>
+              <select id="selCountry">
+                <option value="">Chọn nước đến</option>
+                <option value="Mỹ">🇺🇸 Mỹ (B1/B2)</option>
+                <option value="Schengen">🇪🇺 Schengen (Type C)</option>
+                <option value="Canada">🇨🇦 Canada (Visitor)</option>
+                <option value="Úc">🇦🇺 Úc (Subclass 600)</option>
+                <option value="Anh">🇬🇧 Anh (Visitor)</option>
+                <option value="Nhật">🇯🇵 Nhật (Temporary Visitor)</option>
+              </select>
+            </label>
+            <label class="widget-select">
+              <span class="visually-hidden">Chọn mục đích visa</span>
+              <select id="selPurpose">
+                <option value="">Mục đích visa</option>
+                <option>Du lịch</option>
+                <option>Thăm thân</option>
+                <option>Công tác</option>
+                <option>Hồ sơ từng bị từ chối</option>
+              </select>
+            </label>
+            <button class="btn btn-gold" id="widgetSubmit" type="button">Nhận lộ trình &amp; báo giá</button>
+          </div>
+          <p class="hero-widget-result" id="widgetResult" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="skyline-card" role="img" aria-label="Minh hoạ chân trời với các biểu tượng địa danh Mỹ, Pháp, Canada, Úc, Anh, Nhật dưới bầu trời hoàng hôn">
+          <div class="skyline-caption">Hành trình toàn cầu · 6 thị trường visa</div>
+          <div class="skyline-sun"></div>
+          <svg class="skyline-svg" viewBox="0 0 400 260" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+            <path d="M0 60 Q 90 10 180 46 T 400 40" fill="none" stroke="#0A192F" stroke-width="1.4" stroke-dasharray="1 7" opacity=".55"/>
+            <circle cx="180" cy="46" r="3" fill="#0A192F" opacity=".7"/>
+            <g fill="#0A192F" opacity=".88">
+              <!-- Statue of Liberty (US) -->
+              <rect x="18" y="150" width="10" height="70"/><path d="M15 150 h16 l-8 -20 Z"/><rect x="21" y="120" width="4" height="20"/>
+              <!-- Eiffel Tower (France/Schengen) -->
+              <path d="M100 220 L112 130 L124 220 Z"/><path d="M104 190 h16 M108 165 h8"/>
+              <!-- Maple leaf mark (Canada) -->
+              <path d="M180 210 l6 -14 4 8 6 -18 5 12 5 -8 -3 16 8 4 -10 6 2 8 -8 -4 -4 10 -4 -10 -8 4 2 -8 -10 4 6Z" transform="translate(0,0) scale(0.9) translate(18,4)"/>
+              <!-- Sydney Opera House (Australia) -->
+              <path d="M250 220 q6 -26 16 -26 q4 14 -2 26 M262 220 q6 -22 16 -22 q4 12 -2 22"/>
+              <!-- Big Ben (UK) -->
+              <rect x="320" y="140" width="14" height="80"/><path d="M317 140 h20 l-10 -14 Z"/>
+              <!-- Torii gate (Japan) -->
+              <path d="M365 190 h34 M362 196 h40 M372 196 v24 M388 196 v24"/>
+            </g>
+          </svg>
+        </div>
+        <div class="fan-cards">
+          <div class="fan-card"><span class="flag">🇺🇸</span>Mỹ<span class="ok">ĐÃ ĐẬU</span></div>
+          <div class="fan-card"><span class="flag">🇪🇺</span>Schengen<span class="ok">ĐÃ ĐẬU</span></div>
+          <div class="fan-card"><span class="flag">🇯🇵</span>Nhật<span class="ok">ĐÃ ĐẬU</span></div>
+          <div class="fan-card"><span class="flag">🇨🇦</span>Canada<span class="ok">ĐÃ ĐẬU</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap stats-wrap">
+      <div class="stats-card">
+        <div class="stat"><b class="tabnum" data-count="10000" data-suffix="+">0</b><span>Visa đã được cấp</span></div>
+        <div class="stat"><b class="tabnum" data-count="10" data-suffix="+ năm">0</b><span>Kinh nghiệm xử lý hồ sơ</span></div>
+        <div class="stat"><b class="tabnum" data-count="99" data-suffix="%">0</b><span>Khách hàng hài lòng</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROOF GALLERY ============ -->
+  <section class="proof" aria-labelledby="proof-heading">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Bằng chứng thực tế</span>
+        <h2 id="proof-heading">Hồ sơ đã được <em>cấp visa</em> (đã ẩn thông tin cá nhân)</h2>
+        <p>Trích từ hệ thống lưu trữ hồ sơ khách hàng Khadu — mỗi thẻ tương ứng một hồ sơ đã đậu thực tế.</p>
+      </div>
+      <div class="scroller-shell">
+        <div class="scroller" id="proofScroller" tabindex="0" aria-label="Danh sách hồ sơ visa đã đậu, cuộn ngang">
+          <div class="proof-card"><div class="proof-stamp"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div><div class="redact"></div><div class="redact"></div><div class="redact" style="width:50%"></div><span class="proof-badge">Mỹ B1/B2 · 10 năm</span></div>
+          <div class="proof-card"><div class="proof-stamp"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div><div class="redact"></div><div class="redact"></div><div class="redact" style="width:50%"></div><span class="proof-badge">Schengen Type C · 24h</span></div>
+          <div class="proof-card"><div class="proof-stamp"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div><div class="redact"></div><div class="redact"></div><div class="redact" style="width:50%"></div><span class="proof-badge">Canada Visitor · 10 năm</span></div>
+          <div class="proof-card"><div class="proof-stamp"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div><div class="redact"></div><div class="redact"></div><div class="redact" style="width:50%"></div><span class="proof-badge">Anh Visitor · 2 năm</span></div>
+          <div class="proof-card"><div class="proof-stamp"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div><div class="redact"></div><div class="redact"></div><div class="redact" style="width:50%"></div><span class="proof-badge">Nhật Du lịch · 3 năm</span></div>
+          <div class="proof-card"><div class="proof-stamp"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></div><div class="redact"></div><div class="redact"></div><div class="redact" style="width:50%"></div><span class="proof-badge">Úc Subclass 600</span></div>
+        </div>
+        <div class="scroller-nav">
+          <div class="scroller-dots" id="proofDots"></div>
+          <div class="scroller-arrows">
+            <button class="s-arrow" data-scroller="proofScroller" data-dir="-1" aria-label="Xem hồ sơ trước"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <button class="s-arrow" data-scroller="proofScroller" data-dir="1" aria-label="Xem hồ sơ tiếp theo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SERVICES — bento ============ -->
+  <section id="dich-vu" aria-labelledby="services-heading">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">6 thị trường visa chủ lực</span>
+        <h2 id="services-heading">Dịch vụ xử lý hồ sơ <em>theo từng quốc gia</em></h2>
+        <p>Mỗi thị trường có bộ hồ sơ, mẫu đơn và tiêu chí xét duyệt khác nhau — Khadu chuyên trách riêng từng nhóm chuyên gia.</p>
+      </div>
+      <div class="services-grid">
+
+        <article class="service-card">
+          <svg class="service-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M24 4c1.5 5 1.5 9 0 14M24 4c-1.5 5-1.5 9 0 14M18 12h12M24 18v22M16 40h16M20 26h8"/><path d="M24 18c-3 2-5 5-5 9M24 18c3 2 5 5 5 9"/></svg>
+          <h3>Mỹ · B1/B2</h3>
+          <div class="service-meta">
+            <div><b class="tabnum">3-5 ngày</b><span>Xử lý DS-160</span></div>
+            <div><b class="tabnum">97%</b><span>Tỷ lệ đậu</span></div>
+          </div>
+          <a class="service-link" href="#ho-so">Xem chi tiết hồ sơ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </article>
+
+        <article class="service-card">
+          <svg class="service-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M24 44V10M24 10l-3 6M24 10l3 6M14 44h20M12 20h24M14 20v-2a10 10 0 0 1 20 0v2"/></svg>
+          <h3>Châu Âu · Schengen</h3>
+          <div class="service-meta">
+            <div><b class="tabnum">15 ngày</b><span>Xử lý Type C</span></div>
+            <div><b class="tabnum">96%</b><span>Tỷ lệ đậu</span></div>
+          </div>
+          <a class="service-link" href="#ho-so">Xem chi tiết hồ sơ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </article>
+
+        <article class="service-card">
+          <svg class="service-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M24 6c8 6 14 6 14 6s2 20-14 30C8 32 10 12 10 12s6 0 14-6Z"/></svg>
+          <h3>Canada · Visitor</h3>
+          <div class="service-meta">
+            <div><b class="tabnum">20 ngày</b><span>Xử lý eTA/TRV</span></div>
+            <div><b class="tabnum">95%</b><span>Tỷ lệ đậu</span></div>
+          </div>
+          <a class="service-link" href="#ho-so">Xem chi tiết hồ sơ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </article>
+
+        <article class="service-card">
+          <svg class="service-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M24 6v10M8 40c4-14 8-18 16-18s12 4 16 18M14 40h20"/><circle cx="24" cy="12" r="4"/></svg>
+          <h3>Úc · Subclass 600</h3>
+          <div class="service-meta">
+            <div><b class="tabnum">18 ngày</b><span>Xử lý hồ sơ</span></div>
+            <div><b class="tabnum">94%</b><span>Tỷ lệ đậu</span></div>
+          </div>
+          <a class="service-link" href="#ho-so">Xem chi tiết hồ sơ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </article>
+
+        <article class="service-card">
+          <svg class="service-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="10" y="18" width="28" height="22" rx="1.5"/><path d="M10 24h28M24 10v8M18 14h12"/><circle cx="24" cy="30" r="4"/></svg>
+          <h3>Anh · Standard Visitor</h3>
+          <div class="service-meta">
+            <div><b class="tabnum">15 ngày</b><span>Xử lý hồ sơ</span></div>
+            <div><b class="tabnum">93%</b><span>Tỷ lệ đậu</span></div>
+          </div>
+          <a class="service-link" href="#ho-so">Xem chi tiết hồ sơ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </article>
+
+        <article class="service-card">
+          <svg class="service-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 20h32M14 20v-2a4 4 0 0 1 4-4h12a4 4 0 0 1 4 4v2M24 20v20"/><path d="M14 40h20"/></svg>
+          <h3>Nhật · Temporary Visitor</h3>
+          <div class="service-meta">
+            <div><b class="tabnum">7 ngày</b><span>Xử lý hồ sơ</span></div>
+            <div><b class="tabnum">98%</b><span>Tỷ lệ đậu</span></div>
+          </div>
+          <a class="service-link" href="#ho-so">Xem chi tiết hồ sơ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CHECKLIST ============ -->
+  <section id="ho-so" style="background:var(--paper-alt);" aria-labelledby="checklist-heading">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Chuẩn bị hồ sơ</span>
+        <h2 id="checklist-heading">Checklist hồ sơ <em>tương tác</em> theo từng nước</h2>
+        <p>Tick từng mục bạn đã có — hệ thống tự tính phần trăm hoàn thiện hồ sơ theo thời gian thực.</p>
+      </div>
+      <div class="checklist-panel">
+        <div class="tab-bar" role="tablist" aria-label="Chọn quốc gia để xem checklist">
+          <button class="tab-btn" role="tab" aria-selected="true" data-tab="my">Mỹ (B1/B2)</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="schengen">Schengen</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="canada">Canada</button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-tab="uc">Úc</button>
+        </div>
+
+        <div class="tab-panel active" data-panel="my">
+          <div class="checklist-top">
+            <div class="progress-label"><span class="js-progress-count">0/16</span> mục đã sẵn sàng</div>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+          </div>
+          <div class="checklist-groups">
+            <div class="cl-group"><h4>Nhân thân</h4>
+              <label class="cl-item"><input type="checkbox"><span>Hộ chiếu còn hạn ≥ 6 tháng</span></label>
+              <label class="cl-item"><input type="checkbox"><span>CCCD gắn chip</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Sổ hộ khẩu / xác nhận cư trú</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Giấy khai sinh / kết hôn (nếu có)</span></label>
+            </div>
+            <div class="cl-group"><h4>Công việc</h4>
+              <label class="cl-item"><input type="checkbox"><span>Hợp đồng lao động còn hiệu lực</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Đơn xin nghỉ phép có xác nhận công ty</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Bảng lương 3-6 tháng gần nhất</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Giấy phép kinh doanh (nếu tự làm chủ)</span></label>
+            </div>
+            <div class="cl-group"><h4>Tài chính</h4>
+              <label class="cl-item"><input type="checkbox"><span>Sao kê ngân hàng 6 tháng gần nhất</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Sổ tiết kiệm bản gốc</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Giấy tờ sở hữu nhà đất / sổ đỏ</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Giấy tờ chứng minh cổ phần / tài sản khác</span></label>
+            </div>
+            <div class="cl-group"><h4>Chuyến đi</h4>
+              <label class="cl-item"><input type="checkbox"><span>Lịch trình chuyến đi chi tiết</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Booking khách sạn / vé máy bay tạm giữ chỗ</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Bảo hiểm du lịch quốc tế</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Thư mời (nếu thăm thân/công tác)</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-panel="schengen">
+          <div class="checklist-top">
+            <div class="progress-label"><span class="js-progress-count">0/14</span> mục đã sẵn sàng</div>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+          </div>
+          <div class="checklist-groups">
+            <div class="cl-group"><h4>Nhân thân</h4>
+              <label class="cl-item"><input type="checkbox"><span>Hộ chiếu còn hạn ≥ 3 tháng sau chuyến đi</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Ảnh thẻ nền trắng chuẩn Schengen</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Đơn xin visa Type C điền đầy đủ</span></label>
+            </div>
+            <div class="cl-group"><h4>Công việc</h4>
+              <label class="cl-item"><input type="checkbox"><span>Hợp đồng lao động / quyết định bổ nhiệm</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Đơn nghỉ phép có chữ ký người quản lý</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Xác nhận thu nhập / bảng lương</span></label>
+            </div>
+            <div class="cl-group"><h4>Tài chính</h4>
+              <label class="cl-item"><input type="checkbox"><span>Sao kê ngân hàng 3 tháng gần nhất</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Sổ tiết kiệm ≥ mức khuyến nghị</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Giấy tờ tài sản đối ứng (nếu có)</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Bảo hiểm du lịch Schengen tối thiểu 30.000 EUR</span></label>
+            </div>
+            <div class="cl-group"><h4>Chuyến đi</h4>
+              <label class="cl-item"><input type="checkbox"><span>Vé máy bay khứ hồi tạm giữ chỗ</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Booking khách sạn toàn bộ hành trình</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Lịch trình theo từng ngày, từng nước Schengen</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Thư mời (nếu có người bảo lãnh)</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-panel="canada">
+          <div class="checklist-top">
+            <div class="progress-label"><span class="js-progress-count">0/12</span> mục đã sẵn sàng</div>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+          </div>
+          <div class="checklist-groups">
+            <div class="cl-group"><h4>Nhân thân</h4>
+              <label class="cl-item"><input type="checkbox"><span>Hộ chiếu còn hạn ≥ 6 tháng</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Ảnh kỹ thuật số chuẩn IRCC</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Lý lịch du lịch (10 năm gần nhất)</span></label>
+            </div>
+            <div class="cl-group"><h4>Công việc</h4>
+              <label class="cl-item"><input type="checkbox"><span>Thư xác nhận công tác + chức vụ</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Đơn nghỉ phép được duyệt</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Giấy phép kinh doanh (nếu tự kinh doanh)</span></label>
+            </div>
+            <div class="cl-group"><h4>Tài chính</h4>
+              <label class="cl-item"><input type="checkbox"><span>Sao kê ngân hàng 6 tháng</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Sổ tiết kiệm bản gốc + xác nhận số dư</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Giấy tờ sở hữu tài sản (nếu có)</span></label>
+            </div>
+            <div class="cl-group"><h4>Chuyến đi</h4>
+              <label class="cl-item"><input type="checkbox"><span>Lịch trình dự kiến</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Booking vé máy bay &amp; khách sạn</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Thư mời từ người thân tại Canada (nếu có)</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-panel="uc">
+          <div class="checklist-top">
+            <div class="progress-label"><span class="js-progress-count">0/12</span> mục đã sẵn sàng</div>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+          </div>
+          <div class="checklist-groups">
+            <div class="cl-group"><h4>Nhân thân</h4>
+              <label class="cl-item"><input type="checkbox"><span>Hộ chiếu còn hạn ≥ 6 tháng</span></label>
+              <label class="cl-item"><input type="checkbox"><span>CCCD / sổ hộ khẩu</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Đơn ImmiAccount hoàn chỉnh</span></label>
+            </div>
+            <div class="cl-group"><h4>Công việc</h4>
+              <label class="cl-item"><input type="checkbox"><span>Hợp đồng lao động</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Đơn nghỉ phép có xác nhận</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Bảng lương gần nhất</span></label>
+            </div>
+            <div class="cl-group"><h4>Tài chính</h4>
+              <label class="cl-item"><input type="checkbox"><span>Sao kê ngân hàng 6 tháng</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Sổ tiết kiệm / chứng minh tài sản</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Bảo hiểm du lịch quốc tế</span></label>
+            </div>
+            <div class="cl-group"><h4>Chuyến đi</h4>
+              <label class="cl-item"><input type="checkbox"><span>Lịch trình chi tiết theo ngày</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Booking vé máy bay &amp; khách sạn</span></label>
+              <label class="cl-item"><input type="checkbox"><span>Thư mời (nếu thăm thân)</span></label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROCESS ============ -->
+  <section id="quy-trinh" aria-labelledby="process-heading">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Quy trình làm việc</span>
+        <h2 id="process-heading">4 bước từ đánh giá <em>đến khi cầm visa</em></h2>
+        <p>Mỗi bước có mốc thời gian rõ ràng — bạn luôn biết hồ sơ của mình đang ở giai đoạn nào.</p>
+      </div>
+      <div class="process-flow">
+        <div class="process-step">
+          <div class="process-num">01</div>
+          <h3>Đánh giá hồ sơ miễn phí</h3>
+          <p>Chuyên viên rà soát điều kiện, lịch sử visa và điểm rủi ro trong 24 giờ.</p>
+        </div>
+        <div class="process-step">
+          <div class="process-num">02</div>
+          <h3>Tư vấn lộ trình &amp; ký hợp đồng</h3>
+          <p>Thống nhất chiến lược chứng minh, chi phí trọn gói và cam kết đầu ra.</p>
+        </div>
+        <div class="process-step">
+          <div class="process-num">03</div>
+          <h3>Xử lý &amp; hoàn thiện hồ sơ</h3>
+          <p>Soạn thư giải trình, dịch thuật công chứng, rà soát chéo trước khi nộp.</p>
+        </div>
+        <div class="process-step">
+          <div class="process-num">04</div>
+          <h3>Nộp hồ sơ &amp; theo dõi kết quả</h3>
+          <p>Đặt lịch phỏng vấn (nếu có), theo dõi trạng thái đến khi nhận passport.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TESTIMONIALS (scroller grid) ============ -->
+  <section id="danh-gia" style="background:var(--paper-alt);" aria-labelledby="testi-heading">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Khách hàng nói gì</span>
+        <h2 id="testi-heading">Được đánh giá <em>4,9/5</em> sau hơn 10.000 hồ sơ</h2>
+      </div>
+      <div class="scroller-shell">
+        <div class="scroller" id="testiScroller" tabindex="0" aria-label="Đánh giá khách hàng, cuộn ngang">
+          <div class="testi-card">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote">"Hồ sơ mình từng bị từ chối visa Mỹ 2 lần. Khadu giúp viết lại thư giải trình và bổ sung chứng minh tài chính — đậu ngay lần phỏng vấn thứ 3."</p>
+            <div class="testi-person"><div class="testi-avatar">TH</div><div><div class="testi-name">Trần Hồng, TP.HCM</div><div class="testi-role">Visa Mỹ B1/B2 — đậu sau 2 lần rớt</div></div></div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote">"Chỉ 24 giờ tư vấn là mình biết chính xác cần bổ sung giấy tờ gì cho Schengen. Cả gia đình 4 người đậu visa Pháp đúng lịch trình đám cưới."</p>
+            <div class="testi-person"><div class="testi-avatar">NL</div><div><div class="testi-name">Ngọc Lan, Hà Nội</div><div class="testi-role">Visa Schengen — cả gia đình 4 người</div></div></div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote">"Là chủ hộ kinh doanh nhỏ, mình lo hồ sơ tài chính không đủ thuyết phục. Đội ngũ hướng dẫn chuẩn bị sổ sách rất kỹ, đậu visa Canada trong 18 ngày."</p>
+            <div class="testi-person"><div class="testi-avatar">MC</div><div><div class="testi-name">Minh Châu, Đà Nẵng</div><div class="testi-role">Visa Canada Visitor — chủ hộ kinh doanh</div></div></div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote">"Xin visa Nhật gấp trong 1 tuần vì có việc gia đình. Khadu sắp xếp dịch thuật và nộp hồ sơ nhanh, đậu đúng hẹn."</p>
+            <div class="testi-person"><div class="testi-avatar">PĐ</div><div><div class="testi-name">Phúc Đăng, Cần Thơ</div><div class="testi-role">Visa Nhật — xử lý khẩn 7 ngày</div></div></div>
+          </div>
+        </div>
+        <div class="scroller-nav">
+          <div class="scroller-dots" id="testiDots"></div>
+          <div class="scroller-arrows">
+            <button class="s-arrow" data-scroller="testiScroller" data-dir="-1" aria-label="Đánh giá trước"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <button class="s-arrow" data-scroller="testiScroller" data-dir="1" aria-label="Đánh giá tiếp theo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="lien-he">
+  <div class="wrap footer-grid">
+    <div>
+      <div class="brand" style="margin-bottom:14px;">
+        <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="18.5" stroke="#D4AF37" stroke-width="1.4"/><path d="M11 24 Q20 8 29 24" stroke="#D4AF37" stroke-width="1.6" fill="none"/><circle cx="20" cy="20" r="3" fill="#D4AF37"/></svg>
+        <span class="brand-text" style="color:#fff;">KHADU</span>
+      </div>
+      <p style="max-width:34ch;font-size:14px;">Công ty TNHH Tư vấn Di trú &amp; Visa Khadu — đồng hành cùng hơn 10.000 hồ sơ visa từ 2016.</p>
+      <div class="footer-badges">
+        <span class="footer-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4Z"/></svg> Bảo mật SSL 256-bit</span>
+        <span class="footer-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M12 3l8 4v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V7l8-4Z"/></svg> Uỷ quyền pháp lý</span>
+      </div>
+    </div>
+    <div>
+      <h4>Dịch vụ</h4>
+      <ul>
+        <li><a href="#dich-vu">Visa Mỹ B1/B2</a></li>
+        <li><a href="#dich-vu">Visa Schengen</a></li>
+        <li><a href="#dich-vu">Visa Canada</a></li>
+        <li><a href="#dich-vu">Visa Úc &amp; Anh</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Công ty</h4>
+      <ul>
+        <li><a href="#quy-trinh">Quy trình làm việc</a></li>
+        <li><a href="#danh-gia">Đánh giá khách hàng</a></li>
+        <li><a href="#ho-so">Checklist hồ sơ</a></li>
+        <li><a href="#top">Về Khadu</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Liên hệ</h4>
+      <ul>
+        <li class="tabnum">Hotline: 1900.2025</li>
+        <li>Zalo/WhatsApp: 090.xxx.xxxx</li>
+        <li>68 Nguyễn Huệ, Q.1, TP.HCM</li>
+        <li class="tabnum">MST: 0109-345-678</li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>© 2026 Công ty TNHH Tư vấn Di trú &amp; Visa Khadu. Giấy phép kinh doanh số 0109345678.</span>
+    <span>Kết quả visa phụ thuộc quyết định của cơ quan lãnh sự — tỷ lệ nêu trên tính trên hồ sơ do Khadu trực tiếp xử lý.</span>
+  </div>
+</footer>
+
+<div class="mobile-cta" aria-label="Thao tác nhanh">
+  <a href="tel:19002025" class="mc-call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Gọi nhanh</a>
+  <a href="https://zalo.me" target="_blank" rel="noopener" class="mc-zalo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Chat Zalo</a>
+  <button class="mc-fast" id="fastTrackBtn">⚡ Đăng ký Fast-Track</button>
+</div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Sticky header shadow
+  var header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', function(){
+    header.classList.toggle('scrolled', window.scrollY > 8);
+  }, {passive:true});
+
+  // Hero widget
+  var sel1 = document.getElementById('selCountry');
+  var sel2 = document.getElementById('selPurpose');
+  var result = document.getElementById('widgetResult');
+  document.getElementById('widgetSubmit').addEventListener('click', function(){
+    var c = sel1.value, p = sel2.value;
+    if(!c || !p){
+      result.textContent = 'Vui lòng chọn nước đến và mục đích visa trước nhé.';
+      return;
+    }
+    result.textContent = 'Đã ghi nhận: ' + c + ' — ' + p + '. Xem lộ trình gợi ý ở mục "Dịch vụ" và checklist hồ sơ bên dưới ↓';
+    document.getElementById('dich-vu').scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'start'});
+  });
+
+  // Count-up stats
+  var stats = document.querySelectorAll('.stat b[data-count]');
+  function renderStat(el, val){
+    el.textContent = Math.round(val).toLocaleString('vi-VN') + (el.dataset.suffix||'');
+  }
+  function animateStat(el){
+    var target = parseFloat(el.dataset.count);
+    if(reduce){ renderStat(el, target); return; }
+    var start = performance.now(), dur = 1400;
+    function tick(now){
+      var p = Math.min(1, (now-start)/dur);
+      var eased = 1 - Math.pow(1-p, 3);
+      renderStat(el, target*eased);
+      if(p<1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  var statObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ animateStat(e.target); statObserver.unobserve(e.target); }
+    });
+  }, {threshold:.5});
+  stats.forEach(function(el){ statObserver.observe(el); });
+
+  // Checklist tabs
+  var tabBtns = document.querySelectorAll('.tab-btn');
+  var panels = document.querySelectorAll('.tab-panel');
+  tabBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      tabBtns.forEach(function(b){ b.setAttribute('aria-selected','false'); });
+      btn.setAttribute('aria-selected','true');
+      panels.forEach(function(p){ p.classList.toggle('active', p.dataset.panel===btn.dataset.tab); });
+    });
+  });
+
+  // Checklist progress per panel
+  panels.forEach(function(panel){
+    var boxes = panel.querySelectorAll('input[type="checkbox"]');
+    var fill = panel.querySelector('.progress-fill');
+    var count = panel.querySelector('.js-progress-count');
+    function update(){
+      var checked = 0;
+      boxes.forEach(function(b){ if(b.checked) checked++; });
+      fill.style.width = (checked/boxes.length*100) + '%';
+      count.textContent = checked + '/' + boxes.length;
+    }
+    boxes.forEach(function(b){ b.addEventListener('change', update); });
+    update();
+  });
+
+  // Fast-track sticky button
+  document.getElementById('fastTrackBtn').addEventListener('click', function(){
+    document.getElementById('hero-widget').scrollIntoView({behavior: reduce?'auto':'smooth', block:'center'});
+  });
+
+  // Generic horizontal scroller: dots + arrows, shared by proof gallery & testimonials
+  function initScroller(scrollerId, dotsId){
+    var scroller = document.getElementById(scrollerId);
+    var dotsWrap = document.getElementById(dotsId);
+    var cards = Array.prototype.slice.call(scroller.children);
+    cards.forEach(function(card, i){
+      var d = document.createElement('button');
+      d.className = 's-dot';
+      d.setAttribute('aria-label', 'Đi tới mục ' + (i+1));
+      d.setAttribute('aria-current', i===0 ? 'true' : 'false');
+      d.addEventListener('click', function(){
+        card.scrollIntoView({behavior: reduce?'auto':'smooth', inline:'start', block:'nearest'});
+      });
+      dotsWrap.appendChild(d);
+    });
+    var arrowBtns = document.querySelectorAll('.s-arrow[data-scroller="'+scrollerId+'"]');
+    arrowBtns.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var dir = parseInt(btn.dataset.dir, 10);
+        var cardWidth = cards[0].getBoundingClientRect().width + 18;
+        scroller.scrollBy({left: dir*cardWidth, behavior: reduce?'auto':'smooth'});
+      });
+    });
+    var ticking = false;
+    scroller.addEventListener('scroll', function(){
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(function(){
+        var scrollerLeft = scroller.getBoundingClientRect().left;
+        var closest = 0, closestDist = Infinity;
+        cards.forEach(function(card, i){
+          var dist = Math.abs(card.getBoundingClientRect().left - scrollerLeft);
+          if(dist < closestDist){ closestDist = dist; closest = i; }
+        });
+        Array.prototype.forEach.call(dotsWrap.children, function(d, i){
+          d.setAttribute('aria-current', i===closest ? 'true' : 'false');
+        });
+        ticking = false;
+      });
+    }, {passive:true});
+  }
+  initScroller('proofScroller', 'proofDots');
+  initScroller('testiScroller', 'testiDots');
+})();
+</script>
+</body>
+</html>
